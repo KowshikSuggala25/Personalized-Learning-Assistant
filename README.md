@@ -167,3 +167,24 @@ npm run start
 ### 6. View the App
 
 Open your browser and navigate to the local host address provided by Vite (normally `http://localhost:8080` or `http://localhost:5173`). Have fun studying!
+
+## 📞 Contact Information
+
+### Developer Information
+
+**Sai Kowshik Suggala**
+
+- **Email**: [saikowshiksuggala9390@gmail.com](mailto:saikowshiksuggala9390@gmail.com)
+- **Portfolio**: [https://kowshiksuggala.vercel.app](https://kowshiksuggala.vercel.app)
+- **LinkedIn**: [Connect with me on LinkedIn](https://linkedin.com/in/kowshiksuggala25)
+- **GitHub**: [View my projects on GitHub](https://github.com/KowshikSuggala25)
+
+### Support & Collaboration
+
+For technical discussions, collaboration opportunities, or project inquiries, feel free to reach out through any of the above channels. I'm always open to discussing innovative solutions and potential improvements to the platform.
+
+---
+
+**Built with ❤️ by Sai Kowshik Suggala**
+
+_This project demonstrates full-stack development capabilities, system design principles, and modern web development best practices._
