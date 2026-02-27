@@ -477,12 +477,24 @@ function safeJsonParse(str: string) {
 export async function generateQuestions(settings: QuizSettings): Promise<Question[]> {
   const { subject, difficulty, questionType, questionCount } = settings;
 
+  let promptSubject = `Subject: ${subject}`;
+  let contextInstruction = '';
+
+  if (subject.startsWith('DOCUMENT_CONTEXT:')) {
+    const parts = subject.split(':');
+    const filename = parts[1];
+    const text = parts.slice(2).join(':');
+    promptSubject = `Topic: Content from document "${filename}"`;
+    contextInstruction = `\nCONTEXT FROM DOCUMENT:\n"""\n${text}\n"""\n\nIMPORTANT: Generate questions ONLY based on the context provided above. Do not use outside knowledge.`;
+  }
+
   // ⭐ FIXED PROMPT — ensures correctAnswer is RANDOM, NOT always A
   const prompt = `
 Generate exactly ${questionCount} "${questionType}" questions for:
 
-Subject: ${subject}
+${promptSubject}
 Difficulty: ${difficulty}
+${contextInstruction}
 
 STRICT RULES:
 1. Output ONLY valid JSON array. No text outside JSON.
@@ -525,7 +537,7 @@ RETURN ONLY JSON LIKE:
 
     if (!parsed || !Array.isArray(parsed)) {
       console.error("❌ Could not parse AI JSON. Returning empty list.");
-      return [];
+      throw new Error("Could not parse AI JSON");
     }
 
     // ⭐ Normalize final result
@@ -542,6 +554,6 @@ RETURN ONLY JSON LIKE:
 
   } catch (err) {
     console.error("Backend/Groq Error:", err);
-    return [];
+    throw err;
   }
 }

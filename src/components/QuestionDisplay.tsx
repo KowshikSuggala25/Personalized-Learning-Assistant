@@ -31,11 +31,11 @@
 
 //   const handleSubmit = () => {
 //     if (!selectedAnswer || isAnswered) return;
-    
-//     const correct = Array.isArray(question.correctAnswer) 
+
+//     const correct = Array.isArray(question.correctAnswer)
 //       ? question.correctAnswer.includes(selectedAnswer)
 //       : question.correctAnswer.toLowerCase() === selectedAnswer.toLowerCase();
-    
+
 //     setIsCorrect(correct);
 //     setIsAnswered(true);
 //   };
@@ -57,7 +57,7 @@
 //                 key={index}
 //                 className={`
 //                   p-4 rounded-lg border-2 cursor-pointer transition-all duration-200
-//                   ${selectedAnswer === option 
+//                   ${selectedAnswer === option
 //                     ? isAnswered
 //                       ? isCorrect && selectedAnswer === option
 //                         ? 'border-success bg-success/10 text-success-foreground'
@@ -98,7 +98,7 @@
 //                 key={option}
 //                 className={`
 //                   p-4 rounded-lg border-2 cursor-pointer transition-all duration-200
-//                   ${selectedAnswer === option 
+//                   ${selectedAnswer === option
 //                     ? isAnswered
 //                       ? isCorrect && selectedAnswer === option
 //                         ? 'border-success bg-success/10 text-success-foreground'
@@ -470,16 +470,15 @@
 //   );
 // };
 
-
-//chatgpt 2  
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Question } from '@/types/question';
-import { Progress } from '@/components/ui/progress';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { CheckCircle, XCircle, Clock } from 'lucide-react';
+//chatgpt 2
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Question } from "@/types/question";
+import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { CheckCircle, XCircle, Clock } from "lucide-react";
 
 interface QuestionDisplayProps {
   question: Question;
@@ -494,15 +493,18 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
   totalQuestions,
   onAnswerSubmit,
 }) => {
-
-  const [selectedAnswer, setSelectedAnswer] = useState<string>('');
+  const [selectedAnswer, setSelectedAnswer] = useState<string>("");
   const [isAnswered, setIsAnswered] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
 
   // ⭐ UNIVERSAL CLEAN FUNCTION
   const clean = (value: any): string => {
-    if (!value) return '';
-    return value.toString().trim().toLowerCase().replace(/[^\w\s]/g, '');
+    if (!value) return "";
+    return value
+      .toString()
+      .trim()
+      .toLowerCase()
+      .replace(/[^\w\s]/g, "");
   };
 
   // ⭐ TRUE correctness checker (handles array or string)
@@ -532,7 +534,7 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
 
   const handleNext = () => {
     onAnswerSubmit(question.id, selectedAnswer);
-    setSelectedAnswer('');
+    setSelectedAnswer("");
     setIsAnswered(false);
     setIsCorrect(false);
   };
@@ -542,7 +544,7 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
     const correctAns = question.correctAnswer;
 
     switch (question.type) {
-      case 'multiple-choice':
+      case "multiple-choice":
         return (
           <div className="space-y-3">
             {question.options?.map((option, index) => {
@@ -552,10 +554,10 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                 <div
                   key={index}
                   className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200
-                    ${selectedAnswer === option && !isAnswered ? 'border-primary bg-primary/10' : ''}
-                    ${isAnswered && optionIsCorrect ? 'border-success bg-success/10' : ''}
-                    ${isAnswered && selectedAnswer === option && !optionIsCorrect ? 'border-destructive bg-destructive/10' : ''}
-                    ${!isAnswered && selectedAnswer !== option ? 'border-border hover:border-primary/50 hover:bg-secondary/50' : ''}
+                    ${selectedAnswer === option && !isAnswered ? "border-primary bg-primary/10" : ""}
+                    ${isAnswered && optionIsCorrect ? "border-success bg-success/10" : ""}
+                    ${isAnswered && selectedAnswer === option && !optionIsCorrect ? "border-destructive bg-destructive/10" : ""}
+                    ${!isAnswered && selectedAnswer !== option ? "border-border hover:border-primary/50 hover:bg-secondary/50" : ""}
                   `}
                   onClick={() => handleAnswerSelect(option)}
                 >
@@ -564,13 +566,12 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                       {String.fromCharCode(65 + index)}. {option}
                     </span>
 
-                    {isAnswered && (
-                      optionIsCorrect ? (
+                    {isAnswered &&
+                      (optionIsCorrect ? (
                         <CheckCircle className="h-5 w-5 text-success" />
                       ) : selectedAnswer === option ? (
                         <XCircle className="h-5 w-5 text-destructive" />
-                      ) : null
-                    )}
+                      ) : null)}
                   </div>
                 </div>
               );
@@ -578,32 +579,31 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
           </div>
         );
 
-      case 'true-false':
+      case "true-false":
         return (
           <div className="space-y-3">
-            {['true', 'false'].map((option) => {
+            {["true", "false"].map((option) => {
               const optionIsCorrect = clean(correctAns) === clean(option);
 
               return (
                 <div
                   key={option}
                   className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200
-                    ${selectedAnswer === option && !isAnswered ? 'border-primary bg-primary/10' : ''}
-                    ${isAnswered && optionIsCorrect ? 'border-success bg-success/10' : ''}
-                    ${isAnswered && selectedAnswer === option && !optionIsCorrect ? 'border-destructive bg-destructive/10' : ''}
-                    ${!isAnswered && selectedAnswer !== option ? 'border-border hover:border-primary/50 hover:bg-secondary/50' : ''}
+                    ${selectedAnswer === option && !isAnswered ? "border-primary bg-primary/10" : ""}
+                    ${isAnswered && optionIsCorrect ? "border-success bg-success/10" : ""}
+                    ${isAnswered && selectedAnswer === option && !optionIsCorrect ? "border-destructive bg-destructive/10" : ""}
+                    ${!isAnswered && selectedAnswer !== option ? "border-border hover:border-primary/50 hover:bg-secondary/50" : ""}
                   `}
                   onClick={() => handleAnswerSelect(option)}
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-medium">{option}</span>
-                    {isAnswered && (
-                      optionIsCorrect ? (
+                    {isAnswered &&
+                      (optionIsCorrect ? (
                         <CheckCircle className="h-5 w-5 text-success" />
                       ) : selectedAnswer === option ? (
                         <XCircle className="h-5 w-5 text-destructive" />
-                      ) : null
-                    )}
+                      ) : null)}
                   </div>
                 </div>
               );
@@ -611,7 +611,7 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
           </div>
         );
 
-      case 'fill-blank':
+      case "fill-blank":
         return (
           <div className="space-y-4">
             <Input
@@ -623,14 +623,18 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
             />
 
             {isAnswered && (
-              <div className={`p-3 rounded-lg ${isCorrect ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'}`}>
-                {isCorrect ? 'Correct!' : `Correct answer: ${question.correctAnswer}`}
+              <div
+                className={`p-3 rounded-lg ${isCorrect ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}`}
+              >
+                {isCorrect
+                  ? "Correct!"
+                  : `Correct answer: ${question.correctAnswer}`}
               </div>
             )}
           </div>
         );
 
-      case 'short-answer':
+      case "short-answer":
         return (
           <div className="space-y-4">
             <Textarea
@@ -656,9 +660,17 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
 
   const progress = (questionNumber / totalQuestions) * 100;
 
+  const formatSubjectTitle = (subject: string): string => {
+    if (subject.startsWith("DOCUMENT_CONTEXT:")) {
+      const parts = subject.split(":");
+      const filename = parts[1];
+      return `Document: ${filename}`;
+    }
+    return subject;
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-
       {/* Progress Bar */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
@@ -684,8 +696,12 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
             </div>
 
             <div>
-              <div className="text-sm text-muted-foreground capitalize">
-                {question.subject} • {question.difficulty} • {question.type.replace('-', ' ')}
+              <div
+                className="text-sm text-muted-foreground capitalize truncate max-w-[200px] sm:max-w-[400px]"
+                title={formatSubjectTitle(question.subject)}
+              >
+                {formatSubjectTitle(question.subject)} • {question.difficulty} •{" "}
+                {question.type.replace("-", " ")}
               </div>
             </div>
           </div>
@@ -699,7 +715,7 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
           {renderQuestionInput()}
 
           {!isAnswered && (
-            <Button 
+            <Button
               onClick={handleSubmit}
               disabled={!selectedAnswer}
               variant="gradient"
@@ -711,13 +727,13 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
           )}
 
           {isAnswered && (
-            <Button 
+            <Button
               onClick={handleNext}
               variant="gradient"
               size="lg"
               className="w-full"
             >
-              {questionNumber === totalQuestions ? 'Finish' : 'Next →'}
+              {questionNumber === totalQuestions ? "Finish" : "Next →"}
             </Button>
           )}
         </CardContent>

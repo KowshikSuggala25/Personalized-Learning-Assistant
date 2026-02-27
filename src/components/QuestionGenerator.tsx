@@ -45,7 +45,7 @@
 //     const finalSettings = { ...quizSettings, questionCount } as QuizSettings;
 //     setQuizSettings(finalSettings);
 //     setCurrentScreen('loading');
-    
+
 //     // Simulate loading and generate questions
 //     setTimeout(() => {
 //       const generatedQuestions = generateQuestions(finalSettings);
@@ -56,7 +56,7 @@
 
 //   const handleAnswerSubmit = (questionId: string, answer: string) => {
 //     const question = questions[quizState.currentQuestion];
-//     const isCorrect = Array.isArray(question.correctAnswer) 
+//     const isCorrect = Array.isArray(question.correctAnswer)
 //       ? question.correctAnswer.includes(answer)
 //       : question.correctAnswer === answer;
 
@@ -96,7 +96,7 @@
 //         return <SubjectSelector onSelect={handleSubjectSelect} />;
 //       case 'difficulty':
 //         return (
-//           <DifficultySelector 
+//           <DifficultySelector
 //             onSelect={handleDifficultySelect}
 //             onBack={() => setCurrentScreen('subject')}
 //             selectedSubject={quizSettings.subject!}
@@ -104,7 +104,7 @@
 //         );
 //       case 'type':
 //         return (
-//           <QuestionTypeSelector 
+//           <QuestionTypeSelector
 //             onSelect={handleQuestionTypeSelect}
 //             onBack={() => setCurrentScreen('difficulty')}
 //             settings={quizSettings as { subject: string; difficulty: string }}
@@ -166,24 +166,31 @@
 // export default QuestionGenerator;
 
 // chat gpt code
-import React, { useState } from 'react';
-import { SubjectSelector } from './SubjectSelector';
-import { DifficultySelector } from './DifficultySelector';
-import { QuestionTypeSelector } from './QuestionTypeSelector';
-import { QuestionDisplay } from './QuestionDisplay';
-import { LoadingScreen } from './LoadingScreen';
-import { ResultsScreen } from './ResultsScreen';
-import { QuizSettings, Question, QuizState } from '@/types/question';
+import React, { useState } from "react";
+import { SubjectSelector } from "./SubjectSelector";
+import { DifficultySelector } from "./DifficultySelector";
+import { QuestionTypeSelector } from "./QuestionTypeSelector";
+import { QuestionDisplay } from "./QuestionDisplay";
+import { LoadingScreen } from "./LoadingScreen";
+import { ResultsScreen } from "./ResultsScreen";
+import { QuizSettings, Question, QuizState } from "@/types/question";
 
-import { generateQuestions } from '@/lib/questionGenerator';
+import { generateQuestions } from "@/lib/questionGenerator";
 
-import { Button } from '@/components/ui/button';            // ✅ FIXED IMPORT
-import { Input } from '@/components/ui/input';
+import { Button } from "@/components/ui/button"; // ✅ FIXED IMPORT
+import { Input } from "@/components/ui/input";
 
-type Screen = 'subject' | 'difficulty' | 'type' | 'count' | 'loading' | 'question' | 'results';
+type Screen =
+  | "subject"
+  | "difficulty"
+  | "type"
+  | "count"
+  | "loading"
+  | "question"
+  | "results";
 
 const QuestionGenerator = () => {
-  const [currentScreen, setCurrentScreen] = useState<Screen>('subject');
+  const [currentScreen, setCurrentScreen] = useState<Screen>("subject");
   const [quizSettings, setQuizSettings] = useState<Partial<QuizSettings>>({});
   const [questions, setQuestions] = useState<Question[]>([]);
   const [quizState, setQuizState] = useState<QuizState>({
@@ -196,35 +203,68 @@ const QuestionGenerator = () => {
 
   const [questionCount, setQuestionCount] = useState(5); // default number
 
-  const handleSubjectSelect = (subject: QuizSettings['subject']) => {
-    setQuizSettings(prev => ({ ...prev, subject }));
-    setCurrentScreen('difficulty');
+  const handleSubjectSelect = (subject: QuizSettings["subject"]) => {
+    if (subject === "JEE Main Mock Exam" || subject === "NEET Mock Exam") {
+      // Skip to loading and generate 25 questions directly
+      const mockSettings: QuizSettings = {
+        subject,
+        difficulty: "hard",
+        questionType: "multiple-choice",
+        questionCount: 25,
+      };
+      setQuizSettings(mockSettings);
+      setCurrentScreen("loading");
+      generateMockExam(mockSettings);
+    } else {
+      setQuizSettings((prev) => ({ ...prev, subject }));
+      setCurrentScreen("difficulty");
+    }
   };
 
-  const handleDifficultySelect = (difficulty: QuizSettings['difficulty']) => {
-    setQuizSettings(prev => ({ ...prev, difficulty }));
-    setCurrentScreen('type');
+  const generateMockExam = async (settings: QuizSettings) => {
+    try {
+      const generatedQuestions = await generateQuestions(settings);
+      if (!generatedQuestions || generatedQuestions.length === 0) {
+        throw new Error("No questions generated");
+      }
+      setQuestions(generatedQuestions);
+      setCurrentScreen("question");
+    } catch (err) {
+      console.error("Failed to generate mock exam:", err);
+      alert("Error generating mock exam. Check backend logs.");
+      setCurrentScreen("subject");
+    }
   };
 
-  const handleQuestionTypeSelect = (questionType: QuizSettings['questionType']) => {
-    setQuizSettings(prev => ({ ...prev, questionType }));
-    setCurrentScreen('count');
+  const handleDifficultySelect = (difficulty: QuizSettings["difficulty"]) => {
+    setQuizSettings((prev) => ({ ...prev, difficulty }));
+    setCurrentScreen("type");
+  };
+
+  const handleQuestionTypeSelect = (
+    questionType: QuizSettings["questionType"],
+  ) => {
+    setQuizSettings((prev) => ({ ...prev, questionType }));
+    setCurrentScreen("count");
   };
 
   // ⭐ Fully updated: async + await
   const handleQuestionCountConfirm = async () => {
     const finalSettings = { ...quizSettings, questionCount } as QuizSettings;
     setQuizSettings(finalSettings);
-    setCurrentScreen('loading');
+    setCurrentScreen("loading");
 
     try {
-      const generatedQuestions = await generateQuestions(finalSettings);  // ⭐ FIXED
+      const generatedQuestions = await generateQuestions(finalSettings); // ⭐ FIXED
+      if (!generatedQuestions || generatedQuestions.length === 0) {
+        throw new Error("No questions generated");
+      }
       setQuestions(generatedQuestions);
-      setCurrentScreen('question');
+      setCurrentScreen("question");
     } catch (err) {
       console.error("Failed to generate questions:", err);
       alert("Error generating questions. Check backend logs.");
-      setCurrentScreen('subject');
+      setCurrentScreen("subject");
     }
   };
 
@@ -234,25 +274,25 @@ const QuestionGenerator = () => {
       ? question.correctAnswer.includes(answer)
       : question.correctAnswer === answer;
 
-    setQuizState(prev => ({
+    setQuizState((prev) => ({
       ...prev,
       answers: { ...prev.answers, [questionId]: answer },
       score: isCorrect ? prev.score + 1 : prev.score,
     }));
 
     if (quizState.currentQuestion + 1 < questions.length) {
-      setQuizState(prev => ({
+      setQuizState((prev) => ({
         ...prev,
         currentQuestion: prev.currentQuestion + 1,
       }));
     } else {
-      setQuizState(prev => ({ ...prev, isComplete: true }));
-      setCurrentScreen('results');
+      setQuizState((prev) => ({ ...prev, isComplete: true }));
+      setCurrentScreen("results");
     }
   };
 
   const resetQuiz = () => {
-    setCurrentScreen('subject');
+    setCurrentScreen("subject");
     setQuizSettings({});
     setQuestions([]);
     setQuizState({
@@ -266,28 +306,28 @@ const QuestionGenerator = () => {
 
   const renderCurrentScreen = () => {
     switch (currentScreen) {
-      case 'subject':
+      case "subject":
         return <SubjectSelector onSelect={handleSubjectSelect} />;
 
-      case 'difficulty':
+      case "difficulty":
         return (
           <DifficultySelector
             onSelect={handleDifficultySelect}
-            onBack={() => setCurrentScreen('subject')}
+            onBack={() => setCurrentScreen("subject")}
             selectedSubject={quizSettings.subject!}
           />
         );
 
-      case 'type':
+      case "type":
         return (
           <QuestionTypeSelector
             onSelect={handleQuestionTypeSelect}
-            onBack={() => setCurrentScreen('difficulty')}
+            onBack={() => setCurrentScreen("difficulty")}
             settings={quizSettings as { subject: string; difficulty: string }}
           />
         );
 
-      case 'count':
+      case "count":
         return (
           <div className="flex flex-col items-center justify-center h-screen space-y-6">
             <h2 className="text-2xl font-bold">How many questions?</h2>
@@ -302,16 +342,16 @@ const QuestionGenerator = () => {
             <Button onClick={handleQuestionCountConfirm} size="lg">
               Start Quiz
             </Button>
-            <Button variant="ghost" onClick={() => setCurrentScreen('type')}>
+            <Button variant="ghost" onClick={() => setCurrentScreen("type")}>
               Back
             </Button>
           </div>
         );
 
-      case 'loading':
+      case "loading":
         return <LoadingScreen settings={quizSettings as QuizSettings} />;
 
-      case 'question':
+      case "question":
         return (
           <QuestionDisplay
             question={questions[quizState.currentQuestion]}
@@ -321,7 +361,7 @@ const QuestionGenerator = () => {
           />
         );
 
-      case 'results':
+      case "results":
         return (
           <ResultsScreen
             score={quizState.score}
@@ -345,7 +385,3 @@ const QuestionGenerator = () => {
 };
 
 export default QuestionGenerator;
-
-
-
-
