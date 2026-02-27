@@ -1,73 +1,169 @@
-# Welcome to your Lovable project
+# Personalized Learning AI Assistant 🎓
 
-## Project info
+An advanced, full-stack intelligent learning platform designed to help students generate practice questions, simulate mock exams, and build customized 7-day study plans. The platform leverages **Retrieval-Augmented Generation (RAG)** by allowing users to upload their own study materials (PDF/DOCX) to build a custom knowledge base for AI-assisted learning.
 
-**URL**: https://lovable.dev/projects/f22291cd-83e6-4ab7-936c-5cfaf201005d
+## ✨ Core Features
 
-## How can I edit this code?
+- **Intelligent Document Processing:** Upload PDFs and DOCX files. The app locally extracts text content to establish contextual bounds for the AI.
+- **AI-Powered Question Generation:** Automatically creates objective or subjective questions across different difficulty levels using the Groq AI API.
+- **Mock Exam Simulation:** Practice generated questions in a focused, timed exam environment.
+- **Automated AI Feedback:** Instantly analyzes user answers, provides corrections, and offers a detailed performance evaluation.
+- **7-Day Study Planner:** Dynamically generates an actionable, day-by-day study schedule targeting the user's weak areas identified during the mock exam.
+- **Comprehensive PDF Exports:** Download beautiful, fully-paginated PDF reports encompassing performance metrics, subject reviews, and study schedules—complete with custom branding and logos.
+- **Cloud Database Tracking:** Seamlessly syncs exam history, scores, and feedback to Supabase in real-time.
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+## 🛠️ Tech Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/f22291cd-83e6-4ab7-936c-5cfaf201005d) and start prompting.
+- **Frontend:** React 18, Vite, TypeScript, Tailwind CSS, shadcn/ui.
+- **Backend / API Wrapper:** Node.js, Express.
+- **Artificial Intelligence:** Groq SDK, OpenAI SDK (LLM generation).
+- **Document Processing:** `pdfjs-dist` (PDF Parsing), `mammoth` (DOCX Parsing).
+- **Database:** Supabase (PostgreSQL).
+- **PDF Generation:** `jspdf`, `jspdf-autotable`.
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## 🏗️ System Architecture
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+The overarching system utilizes a decoupled frontend and backend approach to maintain secure API key management while interacting with external AI providers and tracking data in Supabase.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```mermaid
+graph TD
+    subgraph Frontend [React Frontend Workspace]
+        UI[User Interface / Dashboards]
+        DocParser[Local Document Parsing<br/>pdfjs & mammoth]
+        PDFGen[PDF Export Engine<br/>jsPDF]
+        State[React State Context]
+    end
 
-Follow these steps:
+    subgraph Backend [Node.js Express Server]
+        API[API Endpoints<br/>/api/generate]
+        LLM_Adapter[Groq SDK / OpenAI Adapter]
+    end
+
+    subgraph Database [Supabase]
+        DB[(PostgreSQL Database)]
+        RLS[Row Level Security]
+    end
+
+    subgraph External Services
+        AI[Groq AI Models / LLMs]
+    end
+
+    UI -->|1. Upload Document| DocParser
+    DocParser -->|2. Extracted Text / Context| State
+    UI -->|3. Trigger AI Generation| API
+    State -.->|Pass Context Payload| API
+
+    API -->|4. Structure Prompt via SDK| LLM_Adapter
+    LLM_Adapter -->|5. Request Processing| AI
+    AI -->|6. Generated Questions / Feedback| LLM_Adapter
+    LLM_Adapter -->|7. JSON Payload Response| UI
+
+    UI -->|8. Sync Exam Score/History| DB
+    UI -->|9. Sync Feedback & Plans| DB
+
+    UI -->|10. Download Dashboard Report| PDFGen
+```
+
+---
+
+## 🔄 End-to-End Workflow
+
+The user journey is tailored to guide students from raw document uploading straight through to actionable learning feedback.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant User
+    participant Client as React App
+    participant Parser as Doc Parser
+    participant Server as Express API
+    participant LLM as Groq / OpenAI
+    participant DB as Supabase
+
+    User->>Client: Upload Study Material (PDF/DOCX)
+    Client->>Parser: Extract text locally
+    Parser-->>Client: Return extracted text context
+
+    User->>Client: Select Difficulty, Question Type & Quantity
+    Client->>Server: POST /api/generate (Context + Parameters)
+    Server->>LLM: Generate structured system prompt
+    LLM-->>Server: Return JSON (Array of Questions)
+    Server-->>Client: Render Questions in UI
+
+    User->>Client: Answer questions & Submit Exam
+    Client->>Server: POST (Student Answers + Context)
+    Server->>LLM: Evaluate answers & formulate study plan
+    LLM-->>Server: Return Feedback & 7-Day Schedule
+    Server-->>Client: Render Results Dashboard
+
+    Client->>DB: Insert Exam Results & Feedback Record
+    DB-->>Client: Success Confirmation
+
+    User->>Client: Click 'Export Complete Report'
+    Client->>Client: jsPDF renders text, tables & logos onto canvas
+    Client-->>User: Download 'detailed_report.pdf' automatically
+```
+
+---
+
+## 🚀 Local Setup & Installation
+
+Follow these steps to spin up the local development environment:
+
+### 1. Clone the repository
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+git clone https://github.com/KowshikSuggala25/Personalized-Learning-Assistant.git
+cd Personalized-Learning-Assistant
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### 2. Install Dependencies
 
-# Step 3: Install the necessary dependencies.
-npm i
+```sh
+npm install
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### 3. Setup Environment Variables
+
+Create a `.env` file in the root directory and ensure the following variables are configured appropriately:
+
+```env
+# Backend API Keys (Groq or OpenAI)
+GROQ_API_KEY=your_groq_api_key_here
+
+# Supabase Local/Remote Connection
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Backend port configuration
+PORT=5000
+```
+
+### 4. Database Setup (Supabase)
+
+To ensure everything functions properly, run the provided SQL scripts (`supabase_schema.sql` and `supabase_rls_fix.sql`) in your Supabase SQL Editor to establish the required tables (`exams`, `mock_exams`, `exam_feedback`) and bypass any strict RLS policies hindering local inserts.
+
+### 5. Start the Application
+
+You'll need to run both the frontend React server and the NodeJS backend server simultaneously.
+
+**Start the React Development Server:**
+
+```sh
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+**Start the Express Backend Server:**
+In a separate terminal, run:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```sh
+npm run start
+```
 
-**Use GitHub Codespaces**
+### 6. View the App
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/f22291cd-83e6-4ab7-936c-5cfaf201005d) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Open your browser and navigate to the local host address provided by Vite (normally `http://localhost:8080` or `http://localhost:5173`). Have fun studying!
